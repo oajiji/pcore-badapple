@@ -24,9 +24,9 @@ SET (CMAKE_ASM_FLAGS ${PCORE_BASE_FLAGS})
 ###
 # gendata executable.
 #
-SET (GENDATA_SRCS src/lz4.c src/gendata.c)
-SET (PLAYDAT_SRCS src/lz4.c src/playdat.cc)
-SET (MKIMG_SRCS src/lz4.c src/mkimg.cc)
+SET (GENDATA_SRCS src/lz4.c src/gendata.c src/vga12.c)
+SET (PLAYDAT_SRCS src/lz4.c src/playdat.cc src/vga12.c)
+SET (MKIMG_SRCS src/lz4.c src/mkimg.cc src/vga12.c)
 
 ADD_EXECUTABLE(
   gendata

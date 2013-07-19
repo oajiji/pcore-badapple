@@ -15,7 +15,7 @@
 
 static FILE* outfile;
 static int   grpframe, grpcount;
-static uint8_t *picdata, *compressdata;
+static uint8_t *picdata, *compressdata, *framedata;
 static size_t  compress_size, origin_size;
 
 static void OpenDatafile(const char* path) {
@@ -26,6 +26,7 @@ static void OpenDatafile(const char* path) {
   if (outfile == NULL)
     exit(-1);
   picdata = (uint8_t*)malloc(PIC_GROUP_SIZE);
+  framedata = (uint8_t*)malloc(PIC_FRAME_SIZE);
   compressdata = (uint8_t*)malloc(LZ4_compressBound(PIC_GROUP_SIZE));
   compress_size = origin_size = 0;
   grpcount = 0; grpframe = 0;
@@ -37,13 +38,17 @@ static void CloseDatafile() {
   fclose(outfile);
   free(picdata);
   free(compressdata);
+  free(framedata);
 }
+
+extern void linear_to_vga12(const uint8_t *linear, uint8_t *vga12);
 
 void SaveFrame(AVFrame *pFrame, int width, int height, int iFrame) {
   // convert RGB picture to 16-bit grayscale image data.
   int x, y, k;
   uint8_t *line = pFrame->data[0];
-  uint8_t *data = picdata + PIC_FRAME_SIZE * (grpframe++);
+  //uint8_t *data = picdata + PIC_FRAME_SIZE * (grpframe++);
+  uint8_t *data = framedata;
   for (y=0; y<height; ++y, line += pFrame->linesize[0], 
        data += PIC_LINE_SIZE) {
     // assume data is pure grayscale RGB.
@@ -51,6 +56,9 @@ void SaveFrame(AVFrame *pFrame, int width, int height, int iFrame) {
       data[k] = (line[x] & 0xf0) | ((line[x+3] >> 4) & 0x0f);
     }
   }
+  
+  // Convert from linear data to vga12 data.
+  linear_to_vga12(framedata, picdata + PIC_FRAME_SIZE * (grpframe++));
   
 #if 0
   char filename[32];

@@ -5,7 +5,7 @@
 #define PIC_FRAME_SIZE (DST_WIDTH * DST_HEIGHT / 2)
 #define PIC_GROUP_SIZE (FRAME_RATE * PIC_FRAME_SIZE)
 
-#define DATA_OFFSET  5242880
+#define DATA_OFFSET  52428800
 #define DATA_PATH    "/home/pwx/projects/c++/pcore/build/pcore.img" 
 
 #include <lz4.h>
@@ -18,11 +18,14 @@
 
 cv::Mat image(DST_HEIGHT, DST_WIDTH, CV_8UC3);
 
-static void showGroup(uint8_t* group)
+extern "C" void vga12_to_linear(const uint8_t *vga12, uint8_t *linear);
+
+static void showGroup(uint8_t* group, uint8_t *framedata)
 {
   int i, x, y;
   for (i=0; i<30; ++i, group += PIC_FRAME_SIZE) {
-    uint8_t *line = group;
+    uint8_t *line = framedata;
+    vga12_to_linear(group, framedata);
     
     for (y=0; y<DST_HEIGHT; ++y, line += PIC_LINE_SIZE) {
       for (x=0; x<DST_WIDTH/2; ++x) {
@@ -53,6 +56,8 @@ int main()
   
   char *data = (char*)malloc(fsize);
   char *pdata = (char*)malloc(PIC_GROUP_SIZE);
+  uint8_t *framedata = (uint8_t*)malloc(PIC_FRAME_SIZE);
+  
   if (fread(data, 1, fsize, fp) == 0) {
     printf("Cannot read data.\n");
     return -1;
@@ -76,7 +81,7 @@ int main()
     assert (size == PIC_GROUP_SIZE);
     p += compress_size; ++group;
     // Set the ready flag.
-    showGroup((uint8_t*)pdata);
+    showGroup((uint8_t*)pdata, framedata);
     printf("[badapple] Decoded %d sec.\n", group);
   }
   
