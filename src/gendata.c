@@ -11,7 +11,7 @@
 #define DST_HEIGHT 480
 #define FRAME_RATE 30
 #define MOVIE_SOURCE "/home/pwx/projects/c++/pcore-badapple/video/badapple.mkv"
-#define DATA_PATH    "/home/pwx/projects/c++/pcore-badapple/video/badapple.dat"
+#define DATA_PATH    "/home/pwx/projects/c++/pcore/video/badapple.dat"
 
 static FILE* outfile;
 static int   grpframe, grpcount;
@@ -32,9 +32,11 @@ static void OpenDatafile(const char* path) {
 }
 
 static void CloseDatafile() {
+  char eofmark[4] = {0,0,0,0};
+  fwrite(eofmark, 1, 4, outfile);
+  fclose(outfile);
   free(picdata);
   free(compressdata);
-  fclose(outfile);
 }
 
 void SaveFrame(AVFrame *pFrame, int width, int height, int iFrame) {
@@ -188,8 +190,6 @@ int main()
 
         // Save the frame to disk
         SaveFrame(pFrameRGB, DST_WIDTH, DST_HEIGHT, i++);
-        if (i >= 300)
-          break;
       }
     }
     

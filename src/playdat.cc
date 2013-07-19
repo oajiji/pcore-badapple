@@ -4,7 +4,9 @@
 #define PIC_LINE_SIZE  (DST_WIDTH / 2)
 #define PIC_FRAME_SIZE (DST_WIDTH * DST_HEIGHT / 2)
 #define PIC_GROUP_SIZE (FRAME_RATE * PIC_FRAME_SIZE)
-#define DATA_PATH    "/home/pwx/projects/c++/pcore-badapple/video/badapple.dat" 
+
+#define DATA_OFFSET  5242880
+#define DATA_PATH    "/home/pwx/projects/c++/pcore/build/pcore.img" 
 
 #include <lz4.h>
 #include <stdlib.h>
@@ -46,7 +48,8 @@ int main()
   FILE *fp = fopen(DATA_PATH, "rb");
   fseek(fp, 0, SEEK_END);
   long fsize = ftell(fp);
-  fseek(fp, 0, SEEK_SET);
+  fseek(fp, DATA_OFFSET, SEEK_SET);
+  fsize -= DATA_OFFSET;
   
   char *data = (char*)malloc(fsize);
   char *pdata = (char*)malloc(PIC_GROUP_SIZE);
