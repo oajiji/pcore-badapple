@@ -4,7 +4,7 @@ project(pcore_badapple)
 ###
 # Common Cmake switches
 #
-SET (PCORE_OPTIMIZE OFF)
+SET (PCORE_OPTIMIZE ON)
 
 # Setup pCore include directory.
 INCLUDE_DIRECTORIES (${CMAKE_CURRENT_LIST_DIR}/include)
@@ -24,11 +24,16 @@ SET (CMAKE_ASM_FLAGS ${PCORE_BASE_FLAGS})
 ###
 # gendata executable.
 #
-FILE (GLOB_RECURSE GENDATA_SRCS src/*.c)
+SET (GENDATA_SRCS src/lz4.c src/gendata.c)
+SET (PLAYDAT_SRCS src/lz4.c src/playdat.cc)
 
 ADD_EXECUTABLE(
   gendata
   ${GENDATA_SRCS}
+)
+ADD_EXECUTABLE(
+  playdat
+  ${PLAYDAT_SRCS}
 )
 
 SET (FFMPEG_LIBRARIES
@@ -36,5 +41,21 @@ SET (FFMPEG_LIBRARIES
   avformat
   avutil
   swscale
+  opencv_calib3d 
+  opencv_contrib 
+  opencv_core 
+  opencv_features2d 
+  opencv_flann 
+  opencv_highgui 
+  opencv_imgproc 
+  opencv_legacy 
+  opencv_ml 
+  opencv_objdetect 
+  opencv_photo 
+  opencv_stitching 
+  opencv_ts 
+  opencv_video 
+  opencv_videostab
 )
 TARGET_LINK_LIBRARIES (gendata ${FFMPEG_LIBRARIES})
+TARGET_LINK_LIBRARIES (playdat ${FFMPEG_LIBRARIES})
